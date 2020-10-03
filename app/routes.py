@@ -1,8 +1,8 @@
 from flask import render_template, url_for, redirect, request, flash
 from app import app, db, bcrypt, limiter
 from app.models import User, Account, createaccs
-from app.forms import RegistrationForm, LoginForm
-from flask_login import login_user, current_user, logout_user, login_required
+from app.forms import RegistrationForm, LoginForm, Editform
+from flask_login import login_user, current_user, logout_user, login_required, login_manager
 import phonenumbers as pn
 
 
@@ -53,11 +53,23 @@ def register():
 @app.route("/editprofile", methods=['GET', 'POST'])
 @login_required
 def editprofile():
-    form = RegistrationForm()
+    form = Editform()
     if form.validate_on_submit():
-        phonenr = pn.parse(form.tlf.data, "NO")
-        user = User(useremail=form.email.data,
-                    usertlf=pn.format_number(phonenr, pn.PhoneNumberFormat.NATIONAL), useraddr=form.addr.data)
+        user_id = current_user.get_id()
+        user = User.query.filter_by(id=user_id).first()
+        if form and len(form.addr.data) ==0 and len(form.email.data) ==0 and len(form.tlf.data) ==0 :
+            flash("Vennligst sett inn verdiene du vil oppdatere", 'info')
+            return render_template("editprofile.html", form=form)
+        #phonenr = pn.parse(form.tlf.data, "NO")
+        if len(form.addr.data) != 0:
+           user.useraddr=form.addr.data 
+        elif len(form.tlf.data) != 0: 
+            phonenr = pn.parse(form.tlf.data, "NO")
+            user.usertlf=pn.format_number(phonenr, pn.PhoneNumberFormat.NATIONAL)
+        elif len(form.email.data) !=0:
+            user.useremail=form.email.data
+        #user = User(useremail=form.email.data,
+                    #usertlf=pn.format_number(phonenr, pn.PhoneNumberFormat.NATIONAL), useraddr=form.addr.data)
         db.session.add(user)
         db.session.commit()
         flash(f'Dine personlige opplysninger har blitt oppdatert', 'success')

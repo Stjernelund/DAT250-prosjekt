@@ -2,9 +2,11 @@
 <!-- TODO lag input/registerings forms for å endre bruker innhold -->
 <div class="container mx-auto">
     <h1 class="display-4"> Kontoer for {{ current_user.username }} </h1>
-    <table>
-        <th>Kontonavn</th>
-        <th>Balanse</th>
+    <table class="table">
+        <thead class="thead-dark">
+            <th>Kontonavn</th>
+            <th>Balanse</th>
+        </thead>
         {%for acc in current_user.accounts if current_user.accounts%}
         <tr>
             <td>{{ acc.accname}}</td>
