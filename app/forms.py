@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from flask_login import current_user
+from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import Required, Length, Email, EqualTo, ValidationError, Optional
-from app.models import User
+from app.models import User, Account, Log
 import phonenumbers as pn
 
 class RegistrationForm(FlaskForm):
@@ -59,3 +60,25 @@ class Editform(FlaskForm):
         if not pn.is_possible_number(number):
             raise ValidationError('telefonnummeret må ha 8 siffer, og være et mulig telefonnummer')
 
+class Transferform(FlaskForm):
+    tfrom = SelectField('Velg Konto: ')
+    tto = StringField('Overfør til:', validators=[Required()])
+    tsum = StringField('Sum', validators=[Required()])
+    submit = SubmitField('Bekreft overføring')
+
+    def validate_tsum(self,tsum):
+        user_id = current_user.get_id()
+        acc = Account.query.filter_by(accuser=user_id,accname=self.tfrom.data).first()
+        try:
+            float(tsum.data)
+        except ValueError:
+            raise ValidationError('Ikke en gyldig sum')
+        if acc.balance<float(tsum.data):
+            raise ValidationError('Du har ikke nokk penger til å overføre denne mengden')
+        if float(tsum.data)<0:
+            raise ValidationError('Ikke en gyldig sum')
+    
+    def getchoices(self):
+        user_id = current_user.get_id()
+        user = User.query.filter_by(id=user_id).first()
+        self.tfrom.choices = [(acc.accname,acc.accname) for acc in user.accounts]

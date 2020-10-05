@@ -1,9 +1,10 @@
 from flask import render_template, url_for, redirect, request, flash
 from app import app, db, bcrypt, limiter
-from app.models import User, Account, createaccs
-from app.forms import RegistrationForm, LoginForm, Editform
+from app.models import User, Account, Log, createaccs
+from app.forms import RegistrationForm, LoginForm, Editform, Transferform
 from flask_login import login_user, current_user, logout_user, login_required, login_manager
 import phonenumbers as pn
+import datetime as dt
 
 
 @app.route('/')
@@ -57,19 +58,16 @@ def editprofile():
     if form.validate_on_submit():
         user_id = current_user.get_id()
         user = User.query.filter_by(id=user_id).first()
-        if form and len(form.addr.data) ==0 and len(form.email.data) ==0 and len(form.tlf.data) ==0 :
+        if form and len(form.addr.data) ==0 and len(form.email.data) ==0 and len(form.tlf.data) ==0:
             flash("Vennligst sett inn verdiene du vil oppdatere", 'info')
             return render_template("editprofile.html", form=form)
-        #phonenr = pn.parse(form.tlf.data, "NO")
         if len(form.addr.data) != 0:
            user.useraddr=form.addr.data 
-        elif len(form.tlf.data) != 0: 
+        if len(form.tlf.data) != 0: 
             phonenr = pn.parse(form.tlf.data, "NO")
             user.usertlf=pn.format_number(phonenr, pn.PhoneNumberFormat.NATIONAL)
-        elif len(form.email.data) !=0:
+        if len(form.email.data) !=0:
             user.useremail=form.email.data
-        #user = User(useremail=form.email.data,
-                    #usertlf=pn.format_number(phonenr, pn.PhoneNumberFormat.NATIONAL), useraddr=form.addr.data)
         db.session.add(user)
         db.session.commit()
         flash(f'Dine personlige opplysninger har blitt oppdatert', 'success')
@@ -91,6 +89,30 @@ def account():
 @login_required
 def myaccs():
     return render_template('myaccs.html')
+    
+@app.route("/logs")
+@login_required
+def logs():
+    return render_template('logs.html')
+
+
+
+@app.route("/transaction", methods=['GET','POST'])
+@login_required
+def transaction():
+    form = Transferform()
+    form.getchoices()
+    if form.validate_on_submit():
+        user_id = current_user.get_id()
+        acc = Account.query.filter_by(accuser=user_id, accname=form.tfrom.data).first()
+        newsum = acc.balance - float(form.tsum.data)
+        acc.balance = newsum
+        log = Log(loguser=user_id, logfrom = form.tfrom.data, logto=form.tto.data,logsum=form.tsum.data,logtime=dt.datetime.now())
+        db.session.add(log)
+        db.session.commit()
+        return redirect(url_for('myaccs'))
+    return render_template('transaction.html', form=form)
+
 
 #Bruker redirectes etter for mange feil login forsøk
 @app.errorhandler(429)
