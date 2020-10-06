@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = '9cd062ffbbcb3a51fdf4e3ac9a75ae674cb7ff89a04627b37207
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///testDB.db'
 
 #activerer imports
-db = SQLAlchemy(app, engine_options={ 'connect_args': { 'connect_timeout': 30 }})
+db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'

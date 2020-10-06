@@ -6,7 +6,8 @@ from flask_login import login_user, current_user, logout_user, login_required, l
 import phonenumbers as pn
 import datetime as dt
 
-#PERMANENT_SESSION_LIFETIME = dt.timedelta(minutes=1)
+# Permanent session:
+app.permanent_session_lifetime = dt.timedelta(minutes=20) # Store data for that amount of time
 
 @app.route('/')
 def index():
@@ -14,12 +15,15 @@ def index():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("3/5minutes")
+@limiter.limit("6/5minutes")
 def login():
     if current_user.is_authenticated:
-        #session.permanent = True
         return redirect(url_for('index'))
     form = LoginForm()
+    if request.method == "POST":
+                session.permanent = False # Last as long as we have defined. If false: last as long as you are in your browser
+                user = request.form
+                session["user"] = user # Stores data as a dictionary
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and bcrypt.check_password_hash(user.userpwd, form.password.data):
@@ -78,6 +82,7 @@ def editprofile():
 
 @app.route("/logout")
 def logout():
+    session.pop("user", None) #Remove data from our session. Remove userdata from session
     logout_user()
     return redirect(url_for('index'))
 
