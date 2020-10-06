@@ -1,9 +1,11 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
+from flask_wtf import Form, RecaptchaField
 from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import Required, Length, Email, EqualTo, ValidationError, Optional
 from app.models import User, Account, Log
 import phonenumbers as pn
+import re
 
 class RegistrationForm(FlaskForm):
     username = StringField('Brukernavn', validators=[Required(), Length(min=5, max=20)])
@@ -33,10 +35,28 @@ class RegistrationForm(FlaskForm):
         number = pn.parse(tlf.data, "NO")
         if not pn.is_possible_number(number):
             raise ValidationError('telefonnummeret må ha 8 siffer, og være et mulig telefonnummer')
+    
+    def validate_password(self, password):
+        password = password.data
+        message = 'Your password should have at least an uppercase, lowercase, special character: [_,@,$,!,?] and a number character.'
+        #Check for lowercase character
+        if not re.findall('.*[a-z].*', password):
+            raise ValidationError(message)
+        #Check for uppercase character
+        if not re.findall('.*[A-Z].*', password):
+            raise ValidationError(message)
+        #Check for number character
+        if not re.findall('.*[0-9].*', password):
+            raise ValidationError(message)
+        #Check for special characters
+        if not re.findall('.*[_@$!?].*', password):
+            raise ValidationError(message)
+
 
 class LoginForm(FlaskForm):
     username = StringField('Brukernavn', validators=[Required(), Length(min=5, max=20)])
     password = PasswordField('Passord', validators=[Required(), Length(min=8)])
+    recaptcha = RecaptchaField()
     submit = SubmitField('Logg inn')
 
 class Editform(FlaskForm):
