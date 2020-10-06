@@ -1,6 +1,9 @@
 # DAT250-prosjekt
 Github for prosjektarbeid i DAT250
 
+
+sdfghgfdsa
+
 Installerte extensions i virtualenv:
 
 installer via pip install
@@ -16,3 +19,5 @@ from app import db
 db.drop_all()
 
 db.create_all()
+
+helluuuu
