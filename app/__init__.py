@@ -14,15 +14,12 @@ app.config['SECRET_KEY'] = '9cd062ffbbcb3a51fdf4e3ac9a75ae674cb7ff89a04627b37207
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///testDB.db'
 
 #activerer imports
-db = SQLAlchemy(app)
+db = SQLAlchemy(app, engine_options={ 'connect_args': { 'connect_timeout': 30 }})
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'danger'
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
 
 limiter = Limiter(app, key_func=get_remote_address)
 

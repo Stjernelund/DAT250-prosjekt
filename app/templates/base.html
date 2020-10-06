@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <title>Basic html testing</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{url_for('static' , filename = 'css/main.css')}}">
+    <link rel="stylesheet" href="{{url_for('static' , filename = 'css/style.css')}}">
 </head>
 
 <body>
@@ -19,10 +19,13 @@
                         <a class="nav-link" href="{{url_for('myaccs')}}"> Mine kontoer </a>
                     </li>
                     <li class="nav-item active">
-                        <a class="nav-link" href="{{url_for('index')}}"> Overfør penger </a>
+                        <a class="nav-link" href="{{url_for('transaction')}}"> Overfør penger </a>
                     </li>
                     <li class="nav-item active">
                         <a class="nav-link" href="{{url_for('account')}}"> Mine opplysninger </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{{url_for('logs')}}"> Mine overføringer </a>
                     </li>
                     {% else %}
                     <li class="nav-item active">
@@ -35,7 +38,7 @@
                         <a class="nav-link" href="#"> Kom i kontakt! </a>
                     </li>
                     {% endif %}
-                    <style>
+                    <!-- <style>
                         ul {
                             list-style-type: none;
                             margin: 0;
@@ -45,17 +48,9 @@
                             position: sticky;
                             top: 0;
                          }
-                    </style>
+                    </style> -->
                 </ul>
             </div>
-            <!-- Endre denne knappen når personen er logget inn, til en drop
-    down meny from man kan sjekke settings og logge ut
-    psuedokode:
-    if user.logged_in==True:
-      "Drop down meny"
-    else:
-      "Logg inn knapp" -->
-
             <div class="form-inline mt-2 mt-md-0">
                 {% if current_user.is_authenticated %}
                 <a href="{{url_for('logout')}}" class="btn btn-danger">Logg ut</a> {% else %}

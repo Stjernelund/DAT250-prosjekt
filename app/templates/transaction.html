@@ -1,0 +1,35 @@
+{%extends 'base.html'%} 
+{% block body %}
+<form action="" method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{form.tfrom.label}} {% if form.tfrom.errors %} {{form.tform(class="form-control is-invalid")}}
+        <div class="invalid-feedback">
+            {% for error in form.tfrom.errors %}
+            <span> {{ error }}</span> {% endfor %}
+        </div>
+        {% else %} {{form.tfrom(class="form-control")}} {% endif %}
+    </div>
+    <div class="form-group">
+        {{form.tto.label}} {% if form.tto.errors %} {{form.tto(class="form-control is-invalid")}}
+        <div class="invalid-feedback">
+            {% for error in form.tto.errors %}
+            <span> {{ error }}</span> {% endfor %}
+        </div>
+        {% else %} {{form.tto(class="form-control")}} {% endif %}
+    </div>
+    <div class="form-group">
+        {{form.tsum.label}} {% if form.tsum.errors %} {{form.tsum(class="form-control is-invalid")}}
+        <div class="invalid-feedback">
+            {% for error in form.tsum.errors %}
+            <span> {{ error }}</span> {% endfor %}
+        </div>
+        {% else %} {{form.tsum(class="form-control")}} {% endif %}
+    </div>
+    <div class="form-row">
+        <div class="col-md-2 mb-3">
+            {{form.submit(class="btn btn-primary btn-lg")}}
+        </div>
+    </div>
+</form>
+{% endblock %}

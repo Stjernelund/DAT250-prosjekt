@@ -1,0 +1,21 @@
+{%extends 'base.html'%} {% block body %}
+<div class="container mx-auto">
+    <h1 class="display-4"> Loggførte overføringer for {{ current_user.username }} </h1>
+    <table class="table">
+        <thead class="thead-dark">
+            <th>Overført fra</th>
+            <th>Overført til</th>
+            <th>Sum</th>
+            <th>Klokkeslett</th>
+        </thead>
+        {%for log in current_user.logs if current_user.logs%}
+        <tr>
+            <td>{{ log.logfrom}}</td>
+            <td>{{ log.logto}}</td>
+            <td>{{ log.logsum}}</td>
+            <td>{{ log.logtime}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
