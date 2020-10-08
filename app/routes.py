@@ -1,10 +1,13 @@
-from flask import render_template, url_for, redirect, request, flash, session
+from flask import render_template, url_for, redirect, request, flash, session, abort
 from app import app, db, bcrypt, limiter
 from app.models import User, Account, Log, createaccs
 from app.forms import RegistrationForm, LoginForm, Editform, Transferform
 from flask_login import login_user, current_user, logout_user, login_required, login_manager
 import phonenumbers as pn
 import datetime as dt
+import io
+import pyqrcode
+#pip install PyQRCode
 
 # Permanent session:
 app.permanent_session_lifetime = dt.timedelta(minutes=20) # Store data for that amount of time
@@ -26,6 +29,10 @@ def login():
                 session["user"] = user # Stores data as a dictionary
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
+        if user is None or not bcrypt.check_password_hash(user.userpwd, form.password.data) or \
+                not user.verify_totp(form.token.data):
+            flash('Feil brukernavn, passord eller token, vennligst prøv på nytt', 'danger')
+            return redirect(url_for('login'))
         if user and bcrypt.check_password_hash(user.userpwd, form.password.data):
             login_user(user, remember=False)
             next_page = request.args.get('next')
@@ -51,11 +58,47 @@ def register():
         db.session.commit()
         createaccs(user.id)
         db.session.commit()
-
-        flash(f'Brukeren din har blitt registert, du kan nå logge inn!', 'success')
-        return redirect(url_for('login'))
+        # redirect to the two-factor auth page, passing username in session
+        session['username'] = user.username #!!
+        return redirect(url_for('two_factor_setup'))
+        #flash(f'Brukeren din har blitt registert, du kan nå logge inn!', 'success')
+        #return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
+@app.route('/twofactor')
+def two_factor_setup():
+    if 'username' not in session:
+        return redirect(url_for('index'))
+    user = User.query.filter_by(username=session['username']).first()
+    if user is None:
+        return redirect(url_for('index'))
+    # since this page contains the sensitive qrcode, make sure the browser
+    # does not cache it
+    return render_template('twofactor.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
+
+@app.route('/qrcode')
+def qrcode():
+    if 'username' not in session:
+        abort(404)
+    user = User.query.filter_by(username=session['username']).first()
+    if user is None:
+        abort(404)
+
+    # for added security, remove username from session
+    del session['username']
+
+    # render qrcode for FreeTOTP
+    url = pyqrcode.create(user.get_totp_uri())
+    stream = io.BytesIO()
+    url.svg(stream, scale=5)
+    return stream.getvalue(), 200, {
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/editprofile", methods=['GET', 'POST'])
 @login_required

@@ -1,24 +1,30 @@
 {%extends 'base.html'%}{% block body %}
 <div class="container">
-    <h1>Er du en ny bruker?</h1>
-    <p>Vi i [BANK] ønsker at våre bankbrukere skal ha best mulig bankerfaring når de banker, bank med oss eller få bank!</p>
-    <p> <a class="btn btn-secondary btn-lg" href="/register">Registrer deg nå!</a></p>
-    <p> <a class="btn btn-primary btn-lg" href="/login">Eller logg inn her!</a></p>
+    <h1 style="text-align:center">Er du en ny bruker?</h1>
+    <p style="text-align:center">Vi i [BANK] ønsker at våre bankbrukere skal ha best mulig bankerfaring når de banker, bank med oss eller få bank!</p>
+    <p style="text-align:center"> <a class="btn btn-secondary btn-lg" href="/register">Registrer deg nå!</a></p>
+    <p style="text-align:center"> <a class="btn btn-primary btn-lg" href="/login">Eller logg inn her!</a></p>
     <div class="row">
         <div class="col-6">
-            <h1>Testtext</h1>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
+            <br>
+            <h1>Banken™</h1>
+            <p>Banken™ er ledende innenfor fiktive internettbanker. Vi har ingen fysiske kontorer rundt om kring i landet,
+                og sparer derfor mye på driftskostnadene. Alle penger oppspart blir brukt på å skaffe de beste programmererene
+                slik at Banken™ blir en av de sikreste sidene i landet. Banken™ tilbyr i første omgang ikke de samme tjenestene
+                som ordinære banker, men vi kan forsikre deg om at de fiksjonelle pengene dine aldri har vært tryggere.
+            </p>
+            <p>
+                Banken™ er banken som banker.
+                <br>
+                Registrer deg på Banken™ for å bli med på bankingen!
+            </p>
+            <br>
         </div>
+        <br>
         <div class="col-6">
-            <h1>Testtext</h1>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
+            <img src="{{url_for('static', filename='image/banken_logo.png')}}" alt="banken_logo.png" width="500" height="333"/>
         </div>
     </div>
 </div>
+
 {% endblock %}

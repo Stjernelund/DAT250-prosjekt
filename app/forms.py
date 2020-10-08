@@ -56,7 +56,7 @@ class RegistrationForm(FlaskForm):
 class LoginForm(FlaskForm):
     username = StringField('Brukernavn', validators=[Required(), Length(min=5, max=20)])
     password = PasswordField('Passord', validators=[Required(), Length(min=8)])
-    #recaptcha = RecaptchaField()
+    token = StringField('Token (2FA)', validators=[Required(), Length(6, 6)])
     submit = SubmitField('Logg inn')
 
 class Editform(FlaskForm):

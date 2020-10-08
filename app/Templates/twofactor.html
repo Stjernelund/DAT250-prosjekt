@@ -1,0 +1,12 @@
+{%extends 'base.html'%}{% block body %}
+    <h1>Two Factor Authentication Setup</h1>
+    <style>
+        h1 {text-align: center;}
+        p {text-align: center;}
+        div {text-align: center;}
+        </style>
+    <p>Du er snart ferdig! Start Google Authenticator appen og skann QR-koden under for å opprette nødvendig to-steg-verifikasjon:</p>
+    <p><img id="qrcode" src="{{ url_for('qrcode') }}"></p>
+    <p>Ferdig? Gå til <a href="{{ url_for('login') }}">Login</a> siden!</p>
+    <p>PS: Husk at dette steget er nødvendig for å få tilgang til brukeren din. Du vil ikke kunne finne QR-koden ved et senere tidspunkt. </p>
+{% endblock %}
