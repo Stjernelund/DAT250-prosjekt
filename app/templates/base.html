@@ -7,25 +7,28 @@
     <title>Basic html testing</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="stylesheet" href="{{url_for('static' , filename = 'css/style.css')}}">
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+
     <style>
         .footer {
-           position: fixed-bottom;
-           left: 0;
-           bottom: 0;
-           width: 100%;
-           background-color: rgb(63, 60, 60);
-           color: white;
-           text-align: center;
-           height: 80px;
-           clear:both;
-           padding-top:20px;
+            position: fixed-bottom;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: rgb(63, 60, 60);
+            color: white;
+            text-align: center;
+            height: 80px;
+            clear: both;
+            padding-top: 20px;
         }
-        </style>
+    </style>
 </head>
 
 <body>
     <header>
-        <nav class="navbar navbar-expand-md navbar-dark navbar-top bg-dark"> <!--fixed-top-->
+        <nav class="navbar navbar-expand-md navbar-dark navbar-top bg-dark">
+            <!--fixed-top-->
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav mr-auto">
                     {% if current_user.is_authenticated %}
@@ -72,19 +75,19 @@
             </div>
         </nav>
     </header>
-        <div class="jumbotron">
-            <div class="container">
-                <div class="page-header"></div>
-                    <style>
-                        .jumbotron {
-                            background: rgb(59, 156, 185);
-                        }  
-                    </style>
-                    <h1 class="display-4">Banken</h1>
-                    <p>Hvor banker banker</p>
-                </div>
-            </div>
+    <div class="jumbotron">
+        <div class="container">
+            <div class="page-header"></div>
+            <style>
+                .jumbotron {
+                    background: rgb(59, 156, 185);
+                }
+            </style>
+            <h1 class="display-4">Banken</h1>
+            <p>Hvor banker banker</p>
         </div>
+    </div>
+    </div>
     {% with messages = get_flashed_messages(with_categories=True) %} {% if messages %} {% for category, message in messages %}
     <div class="alert alert-{{category}} col-md-8 mx-auto">
         {{ message }}
