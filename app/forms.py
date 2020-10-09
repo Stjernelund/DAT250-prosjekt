@@ -10,7 +10,7 @@ import re
 class RegistrationForm(FlaskForm):
     username = StringField('Brukernavn', validators=[Required(), Length(min=5, max=20)])
     email = StringField('Email', validators= [Required(), Email()])
-    password = PasswordField('Passord', validators=[Required(), Length(min=8)])
+    password = PasswordField('Passord', validators=[Required(), Length(min=12)])
     confirm_password = PasswordField('Bekreft Passord', validators=[Required(), EqualTo('password')])
     tlf = StringField('Telefonnummer', validators=[Required()])
     addr = StringField('Addresse', validators=[Required(), Length(min=5)])
@@ -55,7 +55,7 @@ class RegistrationForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     username = StringField('Brukernavn', validators=[Required(), Length(min=5, max=20)])
-    password = PasswordField('Passord', validators=[Required(), Length(min=8)])
+    password = PasswordField('Passord', validators=[Required(), Length(min=12)])
     token = StringField('Token (2FA)', validators=[Required(), Length(6, 6)])
     submit = SubmitField('Logg inn')
 
