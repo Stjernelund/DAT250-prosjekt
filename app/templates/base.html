@@ -49,10 +49,10 @@
                         <a class="nav-link" href="{{url_for('index')}}"> Hjem </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#"> Om oss </a>
+                        <a class="nav-link" href="{{url_for('om')}}"> Om oss </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#"> Kom i kontakt! </a>
+                        <a class="nav-link" href="{{url_for('kontakt')}}"> Kom i kontakt! </a>
                     </li>
                     {% endif %}
                     <!-- <style>
@@ -95,7 +95,7 @@
     {% endfor %} {% endif %} {% endwith %} {% block body %} {% endblock %}
     <br>
     <div class="footer">
-        <a class="nav-link" href="{{url_for('index')}}" style=color:inherit;> Kontakt oss! </a>
+        <a class="nav-link" href="{{url_for('kontakt')}}" style=color:inherit;> Kontakt oss! </a>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>

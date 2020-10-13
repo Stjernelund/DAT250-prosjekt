@@ -150,6 +150,13 @@ def logs():
 def mainpage():
     return render_template('mainpage.html')
 
+@app.route("/kontakt")
+def kontakt():
+    return render_template('kontakt.html')
+
+@app.route("/om")
+def om():
+    return render_template('om.html')
 
 @app.route("/transaction", methods=['GET','POST'])
 @login_required
