@@ -55,9 +55,20 @@ class RegistrationForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     username = StringField('Brukernavn', validators=[Required(), Length(min=5, max=20)])
-    password = PasswordField('Passord', validators=[Required(), Length(min=12)])
+    password = PasswordField('Passord', validators=[Required(), Length(min=8)])
     token = StringField('Token (2FA)', validators=[Required(), Length(6, 6)])
     submit = SubmitField('Logg inn')
+
+    def validate_token(self, token):
+        token = token.data
+        if len(str(token)) != 6:
+            raise ValidationError("error")
+        token_lc = token.lower()
+        contains_letters = token_lc.islower()
+        if contains_letters:
+            raise ValidationError()
+        #if re.search('[a-zA-Z', str(token)) != None:
+        #   raise ValidationError("error")
 
 class Editform(FlaskForm):
     email = StringField('Email', validators= [Email() , Optional()])

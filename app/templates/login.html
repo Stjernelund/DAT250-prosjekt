@@ -22,7 +22,7 @@
         <div class="form-group">
             {{form.token.label}} {% if form.token.errors %} {{form.token(class="form-control is invalid")}}
             <div class="invalid-feedback">
-                {% for error in form.tokens.errors %}
+                {% for error in form.token.errors %}
                 <span> {{ error }} </span> {% endfor %}
             </div>
             {% else %} {{form.token(class="form-control", autocomplete="off")}} {% endif %}
