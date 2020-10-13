@@ -9,9 +9,6 @@ import io
 import pyqrcode
 #pip install PyQRCode
 
-# Permanent session:
-app.permanent_session_lifetime = dt.timedelta(minutes=20) # Store data for that amount of time
-
 @app.route('/')
 def index():
     return render_template("index.html")
@@ -23,10 +20,6 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = LoginForm()
-    if request.method == "POST":
-                session.permanent = False # Last as long as we have defined. If false: last as long as you are in your browser
-                user = request.form
-                session["user"] = user # Stores data as a dictionary
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not bcrypt.check_password_hash(user.userpwd, form.password.data) or \
@@ -125,7 +118,6 @@ def editprofile():
 
 @app.route("/logout")
 def logout():
-    session.pop("user", None) #Remove data from our session. Remove userdata from session
     logout_user()
     return redirect(url_for('index'))
 
@@ -174,6 +166,11 @@ def transaction():
         return redirect(url_for('myaccs'))
     return render_template('transaction.html', form=form)
 
+@app.before_request
+def before_request():
+    session.permanent = True
+    app.permanent_session_lifetime = dt.timedelta(minutes=1)
+    session.modified = True
 
 #Bruker redirectes etter for mange feil login forsøk
 @app.errorhandler(429)
