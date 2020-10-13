@@ -36,7 +36,7 @@ def login():
         if user and bcrypt.check_password_hash(user.userpwd, form.password.data):
             login_user(user, remember=False)
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('index'))
+            return redirect(next_page) if next_page else redirect(url_for('mainpage'))
         else:
             flash("Feil brukernavn eller passord, vennligst prøv på nytt", 'danger')
     return render_template("login.html", form=form)
@@ -145,6 +145,10 @@ def myaccs():
 def logs():
     return render_template('logs.html')
 
+@app.route("/mainpage")
+@login_required
+def mainpage():
+    return render_template('mainpage.html')
 
 
 @app.route("/transaction", methods=['GET','POST'])
