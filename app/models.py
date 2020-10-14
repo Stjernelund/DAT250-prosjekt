@@ -29,7 +29,7 @@ class User(db.Model, UserMixin):
             self.otp_secret = base64.b32encode(os.urandom(10)).decode('utf-8') #Generate a random secret
         
     def get_totp_uri(self):
-        return 'otpauth://totp/2FA-Demo:{0}?secret={1}&issuer=2FA-Demo' \
+        return 'otpauth://totp/2FA-Banken:{0}?secret={1}&issuer=2FA-Banken' \
             .format(self.username, self.otp_secret)
 
     def verify_totp(self, token):

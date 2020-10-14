@@ -169,7 +169,7 @@ def transaction():
 @app.before_request
 def before_request():
     session.permanent = True
-    app.permanent_session_lifetime = dt.timedelta(minutes=1)
+    app.permanent_session_lifetime = dt.timedelta(minutes=10)
     session.modified = True
 
 #Bruker redirectes etter for mange feil login forsøk

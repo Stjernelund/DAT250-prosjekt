@@ -63,12 +63,12 @@ class LoginForm(FlaskForm):
         token = token.data
         if len(str(token)) != 6:
             raise ValidationError("error")
-        token_lc = token.lower()
-        contains_letters = token_lc.islower()
-        if contains_letters:
+        if re.findall('.*[_@$!?].*', token):
             raise ValidationError()
-        #if re.search('[a-zA-Z', str(token)) != None:
-        #   raise ValidationError("error")
+        if re.findall('.*[a-z].*', token):
+            raise ValidationError()
+        if re.findall('.*[A-Z].*', token):
+            raise ValidationError()
 
 class Editform(FlaskForm):
     email = StringField('Email', validators= [Email() , Optional()])
