@@ -4,7 +4,7 @@ from app.mail import send_mail
 def log(username, status):
     now = datetime.now()
     time = now.strftime("%H:%M:%S")
-    with open(f"./logs/{now.year}-{now.month}-{now.day}.txt", "a") as file:
+    with open(f"./log-login/{now.year}-{now.month}-{now.day}.txt", "a") as file:
         file.write(f"{now.year}-{now.month}-{now.day} {time} - {username} - {status}\n")
     if status == "Unsuccessful":
         check(now, time, username)
@@ -15,7 +15,7 @@ def check(now, time, username):
     five_min = datetime(100,1,1,00,5,0).time()
     five_min_two = datetime(100,1,1,00,5,2).time()
     time = datetime.strptime(time, '%H:%M:%S')
-    with open(f"./logs/{now.year}-{now.month}-{now.day}.txt", "r") as f:
+    with open(f"./log-login/{now.year}-{now.month}-{now.day}.txt", "r") as f:
         for lines in f:
             words = lines.split(" ")
             if words[3] == username and words[5] == "Unsuccessful\n":
@@ -31,6 +31,8 @@ def check(now, time, username):
                     break
     return
 
-def log_transactions(username, value):
-    
+def log_transaction(user, from_acc, to_acc, value, now):
+    date = now.strftime("%Y-%m-%d")
+    with open(f"./log-transaction/transactions-{date}.txt", "a") as file:
+        file.write(f"{user} transfered {value}kr from {from_acc} to {to_acc}\n")
     pass

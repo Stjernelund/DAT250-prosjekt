@@ -7,7 +7,9 @@ import phonenumbers as pn
 import datetime as dt
 import io
 import pyqrcode
-from app.logger import log
+from app.logger import log, log_transaction
+from datetime import datetime
+from app.mail import send_mail
 #pip install PyQRCode
 
 @app.route('/')
@@ -163,9 +165,13 @@ def transaction():
         acc = Account.query.filter_by(accuser=user_id, accname=form.tfrom.data).first()
         newsum = acc.balance - float(form.tsum.data)
         acc.balance = newsum
-        log = Log(loguser=user_id, logfrom = form.tfrom.data, logto=form.tto.data,logsum=form.tsum.data,logtime=dt.datetime.now())
-        db.session.add(log)
+        now = datetime.now()
+        time = now.strftime("%Y-%m-%d %H:%M:%S")
+        loggen = Log(loguser=user_id, logfrom = form.tfrom.data, logto=form.tto.data, logsum=form.tsum.data, logtime=time)
+        db.session.add(loggen)
         db.session.commit()
+        #send_mail(email, f"Du har overført {penger}kr fra {konto} til {konto2}")
+        #log_transaction(user_id, form.tfrom.data, form.tto.data, form.tsum, now)
         return redirect(url_for('myaccs'))
     return render_template('transaction.html', form=form)
 
