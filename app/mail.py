@@ -1,6 +1,7 @@
-import smtplib, ssl
+import smtplib
+import ssl
 
-def send_mail(receivers_email="sindrevatnaland97@gmail.com", melding="Test"):
+def send_mail(receivers_email=None, melding=None):
     smtp_server = "smtp.gmail.com"
     port = 587
     sender_email = "dat250python@gmail.com"
@@ -11,7 +12,7 @@ def send_mail(receivers_email="sindrevatnaland97@gmail.com", melding="Test"):
 
     {melding}""")
 
-    context = ssl.create_default_context()
+    context = ssl._create_unverified_context()
 
     try:
         server = smtplib.SMTP(smtp_server,port)

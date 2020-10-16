@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import os
 from app.mail import send_mail
 
 def log(username, status):
