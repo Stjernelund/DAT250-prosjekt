@@ -7,6 +7,7 @@ import phonenumbers as pn
 import datetime as dt
 import io
 import pyqrcode
+from app.logger import log
 #pip install PyQRCode
 
 @app.route('/')
@@ -25,10 +26,12 @@ def login():
         if user is None or not bcrypt.check_password_hash(user.userpwd, form.password.data) or \
                 not user.verify_totp(form.token.data):
             flash('Feil brukernavn, passord eller token, vennligst prøv på nytt', 'danger')
+            log(form.username.data, "Unsuccessful")
             return redirect(url_for('login'))
         if user and bcrypt.check_password_hash(user.userpwd, form.password.data):
             login_user(user, remember=False)
             next_page = request.args.get('next')
+            log(form.username.data, "Successful")
             return redirect(next_page) if next_page else redirect(url_for('mainpage'))
         else:
             flash("Feil brukernavn eller passord, vennligst prøv på nytt", 'danger')
