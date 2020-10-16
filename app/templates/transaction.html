@@ -8,7 +8,7 @@
             {% for error in form.tfrom.errors %}
             <span> {{ error }}</span> {% endfor %}
         </div>
-        {% else %} {{form.tfrom(class="form-control")}} {% endif %}
+        {% else %} {{form.tfrom(class="form-control", autocomplete="off")}} {% endif %}
     </div>
     <div class="form-group">
         {{form.tto.label}} {% if form.tto.errors %} {{form.tto(class="form-control is-invalid")}}
@@ -16,7 +16,7 @@
             {% for error in form.tto.errors %}
             <span> {{ error }}</span> {% endfor %}
         </div>
-        {% else %} {{form.tto(class="form-control")}} {% endif %}
+        {% else %} {{form.tto(class="form-control", autocomplete="off")}} {% endif %}
     </div>
     <div class="form-group">
         {{form.tsum.label}} {% if form.tsum.errors %} {{form.tsum(class="form-control is-invalid")}}
@@ -24,7 +24,7 @@
             {% for error in form.tsum.errors %}
             <span> {{ error }}</span> {% endfor %}
         </div>
-        {% else %} {{form.tsum(class="form-control")}} {% endif %}
+        {% else %} {{form.tsum(class="form-control", autocomplete="off")}} {% endif %}
     </div>
     <div class="form-row">
         <div class="col-md-2 mb-3">

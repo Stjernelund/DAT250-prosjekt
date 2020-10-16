@@ -93,7 +93,7 @@ class Editform(FlaskForm):
 
 class Transferform(FlaskForm):
     tfrom = SelectField('Velg Konto: ')
-    tto = StringField('Overfør til:', validators=[Required()])
+    tto = StringField('Overfør til:', validators=[Required(), Length(min=5, max=20)])
     tsum = StringField('Sum', validators=[Required()])
     submit = SubmitField('Bekreft overføring')
 
