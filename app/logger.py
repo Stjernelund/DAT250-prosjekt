@@ -1,13 +1,23 @@
 from datetime import datetime, timedelta
-from app.mail import send_mail
+from app.mail import send_mail_fil
+import pathlib
 
 def log(username, status):
     now = datetime.now()
     time = now.strftime("%H:%M:%S")
+    file = pathlib.Path(f"./log-login/{now.year}-{now.month}-{now.day}.txt")
+    past = datetime.today() - timedelta(days=1)
+    if not file.exists():
+        try:
+            send_mail_fil("dat250python@gmail.com", "Log:", "Daglig log", f"./log-login/{past.year}-{past.month}-{past.day}.txt")
+        except:
+            send_mail_fil("dat250python@gmail.com", "Ingen log, ingen aktivitet", "Daglig log")
     with open(f"./log-login/{now.year}-{now.month}-{now.day}.txt", "a") as file:
-        file.write(f"{now.year}-{now.month}-{now.day} {time} - {username} - {status}\n")
+        file.write(f"{now.year}-{now.month}-{now.day} {time} - {username} - {status}")
     if status == "Unsuccessful":
         check(now, time, username)
+    with open(f"./log-login/{now.year}-{now.month}-{now.day}.txt", "a") as file:
+        file.write(f"\n")
     return
 
 def check(now, time, username):
@@ -24,15 +34,22 @@ def check(now, time, username):
                 delta = str(delta)
                 delta = datetime.strptime(delta, '%H:%M:%S').time()
                 if delta < two_sec:
-                    send_mail("admin@gmail.com", f"Misstenkelig innlogging - {now}")
+                    send_mail_fil("dat250python@gmail.com", f"Misstenkelig innlogging - {now}", "Potensiell trussel", f"./log-login/{now.year}-{now.month}-{now.day}.txt")
                     break
                 if delta >= five_min and delta <= five_min_two:
-                    send_mail("admin@gmail.com", f"Misstenkelig innlogging - {now}")
+                    send_mail_fil("dat250python@gmail.com", f"Misstenkelig innlogging - {now}", "Potensiell trussel", f"./log-login/{now.year}-{now.month}-{now.day}.txt")
                     break
     return
 
 def log_transaction(user, from_acc, to_acc, value, now):
     date = now.strftime("%Y-%m-%d")
-    with open(f"./log-transaction/transactions-{date}.txt", "a") as file:
+    file = pathlib.Path(f"./log-login/{now.year}-{now.month}-{now.day}.txt")
+    past = datetime.today() - timedelta(days=1)
+    if not file.exists():
+        try:
+            send_mail_fil("dat250python@gmail.com", "Log:", "Daglig log", f"./log-login/{past.year}-{past.month}-{past.day}.txt")
+        except:
+            pass
+    with open(f"./log-transaction/{date}.txt", "a") as file:
         file.write(f"{user} transfered {value}kr from {from_acc} to {to_acc}\n")
     pass

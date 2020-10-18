@@ -9,7 +9,7 @@ import io
 import pyqrcode
 from app.logger import log, log_transaction
 from datetime import datetime
-from app.mail import send_mail
+from app.mail import send_mail_fil, send_mail_html
 #pip install PyQRCode
 
 @app.route('/')
