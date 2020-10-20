@@ -17,6 +17,7 @@ paranoid.redirect_view = '/'
 #Lager secret key og database addresse
 app.config['SECRET_KEY'] = '9cd062ffbbcb3a51fdf4e3ac9a75ae674cb7ff89a04627b372072d77b1eb4409'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///testDB.db'
+app.config['SECURITY_PASSWORD_SALT'] = 'cfgvhbn79o3yr082nr3c2y8320283ucvb788nncnnx838mmm8388qqq0plomzasgatyak78'
 
 # Makes sure a cookie will never be sent on an unenctypted wire
 SESSION_COOKIE_SECURE = True
