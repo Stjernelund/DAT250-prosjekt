@@ -43,15 +43,18 @@ def check(now, time, username):
 
 def log_transaction(user, from_acc, to_acc, value, now=datetime.now()):
     date = now.strftime("%Y-%m-%d")
-    file = pathlib.Path(f"./log-login/{now.year}-{now.month}-{now.day}.txt")
+    file = pathlib.Path(f"./log-transaction/{now.year}-{now.month}-{now.day}.txt")
     past = datetime.today() - timedelta(days=1)
     if not file.exists():
         try:
-            send_mail_fil("dat250python@gmail.com", "Log:", "Daglig log", f"./log-login/{past.year}-{past.month}-{past.day}.txt")
+            send_mail_fil("dat250python@gmail.com", "Log:", "Daglig log", f"./log-transaction/{past.year}-{past.month}-{past.day}.txt")
         except:
             pass
     with open(f"./log-transaction/{date}.txt", "a") as file:
         file.write(f"{user} transfered {value}kr from {from_acc} to {to_acc}\n")
-    if value > 500:
-        send_mail_fil("dat250python@gmail.com", "Log:", "Høy transaksjon", f"./log-login/{now.year}-{now.month}-{now.day}.txt")
+    if int(value) > 500:
+        try:
+            send_mail_fil("dat250python@gmail.com", "Log:", "Høy transaksjon", f"./log-transaction/{now.year}-{now.month}-{now.day}.txt")
+        except:
+            return
     pass

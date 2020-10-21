@@ -11,8 +11,7 @@ from app.logger import log, log_transaction
 from datetime import datetime
 from app.mail import send_mail
 from app.token import generate_confirmation_token, confirm_token
-#pip install PyQRCode
-###############
+
 
 @app.route('/')
 def index():
@@ -164,11 +163,12 @@ def transaction():
     form.getchoices()
     if form.validate_on_submit():
         current_user.confirmed = False
-        token_mail()
         session['user_id'] = current_user.get_id()
+        session['user'] = current_user.username
         session['tfrom'] = form.tfrom.data
         session['tto'] = form.tto.data
         session['tsum'] = form.tsum.data 
+        token_mail()
         #return redirect(url_for('overforing'))
     return render_template('transaction.html', form=form)
 
@@ -189,6 +189,7 @@ def overforing():
                     time = now.strftime("%Y-%M-%d %H:%M:%S")
                     log = Log(loguser=user_id, logfrom = tfrom, logto=tto,logsum=tsum,logtime=time)
                     current_user.confirmed = False
+                    log_transaction(session['user'], session['tfrom'], session['tto'], session['tsum'])
                     db.session.add(log)
                     db.session.commit()
                     # for added security, remove username from session
@@ -196,6 +197,7 @@ def overforing():
                     del session['tfrom']
                     del session['tto']
                     del session['tsum']
+                    del session['user']
     return redirect(url_for('logs'))
 
 def token_mail():
