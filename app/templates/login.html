@@ -27,12 +27,16 @@
             </div>
             {% else %} {{form.token(class="form-control", autocomplete="off")}} {% endif %}
         </div>
-</div>
-</form>
-<div class="border-top pt-3">
-    <small class="text-muted">
+        <div class="form-row">
+            <div class="col-md-2 mb-3">
+                {{form.submit(class="btn btn-primary btn-lg")}}
+            </div>
+        </div>
+    </form>
+    <div class="border-top pt-3">
+        <small class="text-muted">
       Har du ikke en bruker? <a class="ml-2" href="{{url_for('register')}}">Registrer deg her!</a>
     </small>
-</div>
+    </div>
 </div>
 {% endblock %}
