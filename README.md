@@ -8,7 +8,7 @@ Installerte extensions i virtualenv:
 
 installer via pip install
 
-flask flask-SQLalchemy flask-bcrypt flask-wtf flask-login flask-limiter email_validator phonenumbers
+flask flask-SQLalchemy flask-bcrypt flask-wtf flask-login flask-limiter email_validator phonenumbers onetimepass PyQRcode flask-paranoid
 
 For å tømme database:
 

@@ -10,7 +10,7 @@ import re
 class RegistrationForm(FlaskForm):
     username = StringField('Brukernavn', validators=[Required(), Length(min=5, max=20)])
     email = StringField('Email', validators= [Required(), Email()])
-    password = PasswordField('Passord', validators=[Required(), Length(min=8)])
+    password = PasswordField('Passord', validators=[Required(), Length(min=12)])
     confirm_password = PasswordField('Bekreft Passord', validators=[Required(), EqualTo('password')])
     tlf = StringField('Telefonnummer', validators=[Required()])
     addr = StringField('Addresse', validators=[Required(), Length(min=5)])
@@ -62,6 +62,17 @@ class LoginForm(FlaskForm):
         recaptcha.clean = lambda x: x[0]
     submit = SubmitField('Logg inn')
 
+    def validate_token(self, token):
+        token = token.data
+        if len(str(token)) != 6:
+            raise ValidationError("error")
+        if re.findall('.*[_@$!?].*', token):
+            raise ValidationError()
+        if re.findall('.*[a-z].*', token):
+            raise ValidationError()
+        if re.findall('.*[A-Z].*', token):
+            raise ValidationError()
+
 class Editform(FlaskForm):
     email = StringField('Email', validators= [Email() , Optional()])
     tlf = StringField('Telefonnummer', validators=[Optional()])
@@ -85,7 +96,7 @@ class Editform(FlaskForm):
 
 class Transferform(FlaskForm):
     tfrom = SelectField('Velg Konto: ')
-    tto = StringField('Overfør til:', validators=[Required()])
+    tto = StringField('Overfør til:', validators=[Required(), Length(min=5, max=20)])
     tsum = StringField('Sum', validators=[Required()])
     submit = SubmitField('Bekreft overføring')
 
@@ -105,3 +116,34 @@ class Transferform(FlaskForm):
         user_id = current_user.get_id()
         user = User.query.filter_by(id=user_id).first()
         self.tfrom.choices = [(acc.accname,acc.accname) for acc in user.accounts]
+
+
+class Transferlocalform(FlaskForm):
+    tfrom = SelectField('Velg Konto: ')
+    tto = SelectField('Velg Konto: ')
+    tsum = StringField('Sum', validators=[Required()])
+    submit = SubmitField('Bekreft overføring')
+
+    def validate_tsum(self,tsum):
+        user_id = current_user.get_id()
+        acc = Account.query.filter_by(accuser=user_id,accname=self.tfrom.data).first()
+        try:
+            float(tsum.data)
+        except ValueError:
+            raise ValidationError('Ikke en gyldig sum')
+        if acc.balance<float(tsum.data):
+            raise ValidationError('Du har ikke nokk penger til å overføre denne mengden')
+        if float(tsum.data)<0:
+            raise ValidationError('Ikke en gyldig sum')
+    
+    def getchoicesfrom(self):
+        user_id = current_user.get_id()
+        user = User.query.filter_by(id=user_id).first()
+        self.tfrom.choices = [(acc.accname,acc.accname) for acc in user.accounts]
+    
+    def getchoicesto(self):
+        user_id = current_user.get_id()
+        user = User.query.filter_by(id=user_id).first()
+        self.tto.choices = [(acc.accname,acc.accname) for acc in user.accounts]
+
+   

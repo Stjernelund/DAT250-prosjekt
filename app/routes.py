@@ -1,16 +1,19 @@
 from flask import render_template, url_for, redirect, request, flash, session, abort
 from app import app, db, bcrypt, limiter
 from app.models import User, Account, Log, createaccs
-from app.forms import RegistrationForm, LoginForm, Editform, Transferform
+from app.forms import RegistrationForm, LoginForm, Editform, Transferform, Transferlocalform
 from flask_login import login_user, current_user, logout_user, login_required, login_manager
 import phonenumbers as pn
 import datetime as dt
 import io
 import pyqrcode
+from app.logger import log, log_transaction
+from datetime import datetime
+from app.mail import send_mail
+from app.token import generate_confirmation_token, confirm_token
+from app.decorator import check_confirmed
 #pip install PyQRCode
-
-# Permanent session:
-app.permanent_session_lifetime = dt.timedelta(minutes=20) # Store data for that amount of time
+###############
 
 @app.route('/')
 def index():
@@ -23,20 +26,18 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = LoginForm()
-    if request.method == "POST":
-                session.permanent = False # Last as long as we have defined. If false: last as long as you are in your browser
-                user = request.form
-                session["user"] = user # Stores data as a dictionary
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not bcrypt.check_password_hash(user.userpwd, form.password.data) or \
                 not user.verify_totp(form.token.data):
             flash('Feil brukernavn, passord eller token, vennligst prøv på nytt', 'danger')
+            #log(form.username.data, "Unsuccessful")
             return redirect(url_for('login'))
         if user and bcrypt.check_password_hash(user.userpwd, form.password.data):
             login_user(user, remember=False)
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('index'))
+            #log(form.username.data, "Successful")
+            return redirect(next_page) if next_page else redirect(url_for('mainpage'))
         else:
             flash("Feil brukernavn eller passord, vennligst prøv på nytt", 'danger')
     return render_template("login.html", form=form)
@@ -53,7 +54,7 @@ def register():
             form.password.data).decode('utf-8')
         phonenr = pn.parse(form.tlf.data, "NO")
         user = User(username=form.username.data, useremail=form.email.data,
-                    userpwd=hashed_password, usertlf= pn.format_number(phonenr, pn.PhoneNumberFormat.NATIONAL), useraddr=form.addr.data)
+                    userpwd=hashed_password, usertlf= pn.format_number(phonenr, pn.PhoneNumberFormat.NATIONAL), useraddr=form.addr.data, confirmed=False)
         db.session.add(user)
         db.session.commit()
         createaccs(user.id)
@@ -125,7 +126,6 @@ def editprofile():
 
 @app.route("/logout")
 def logout():
-    session.pop("user", None) #Remove data from our session. Remove userdata from session
     logout_user()
     return redirect(url_for('index'))
 
@@ -145,7 +145,18 @@ def myaccs():
 def logs():
     return render_template('logs.html')
 
+@app.route("/mainpage")
+@login_required
+def mainpage():
+    return render_template('mainpage.html')
 
+@app.route("/kontakt")
+def kontakt():
+    return render_template('kontakt.html')
+
+@app.route("/om")
+def om():
+    return render_template('om.html')
 
 @app.route("/transaction", methods=['GET','POST'])
 @login_required
@@ -153,16 +164,96 @@ def transaction():
     form = Transferform()
     form.getchoices()
     if form.validate_on_submit():
+        current_user.confirmed = False
+        token_mail()
+        session['user_id'] = current_user.get_id()
+        session['tfrom'] = form.tfrom.data
+        session['tto'] = form.tto.data
+        session['tsum'] = form.tsum.data 
+        #return redirect(url_for('overforing'))
+    return render_template('transaction.html', form=form)
+
+@app.route("/overforing", methods=['GET','POST'])
+@login_required
+def overforing():
+    if 'user_id' in session:
+        tfrom = session['tfrom']
+        tto = session['tto']
+        tsum = session['tsum']
+        if request.method == 'GET':
+            if current_user.confirmed == True:
+                    user_id = session['user_id']
+                    acc = Account.query.filter_by(accuser=user_id, accname=tfrom).first()
+                    newsum = acc.balance - float(tsum)
+                    acc.balance = newsum
+                    log = Log(loguser=user_id, logfrom = tfrom, logto=tto,logsum=tsum,logtime=dt.datetime.now())
+                    current_user.confirmed = False
+                    db.session.add(log)
+                    db.session.commit()
+                    # for added security, remove username from session
+                    del session['user_id']
+                    del session['tfrom']
+                    del session['tto']
+                    del session['tsum']
+    return redirect(url_for('logs'))
+
+def token_mail():
+    mail = current_user.useremail
+    token = generate_confirmation_token(mail)
+    confirm_url = url_for('confirm_email', token=token, _external=True)
+    html = render_template('meldingen.html', confirm_url=confirm_url)
+    send_mail(mail, html) 
+    flash('En bekreftelseslink har blitt sendt via mail', 'success')
+    #return redirect(url_for("transaction"))
+
+@app.route('/confirm/<token>')
+@login_required
+def confirm_email(token):
+    try:
+        email = confirm_token(token)
+    except:
+        flash('The confirmation link is invalid or has expired.', 'danger')
+    user = User.query.filter_by(useremail=email).first_or_404()
+    if user.confirmed:
+        flash('Account already confirmed. Please login.', 'success')
+    else:
+        print("Rett før vi setter user.confirmed til true")
+        user.confirmed = True
+        user.confirmed_on = dt.datetime.now()
+        db.session.add(user)
+        db.session.commit()
+        flash('Du har bekreftet bankoverføingen!', 'success')
+    return redirect(url_for('overforing'))
+
+@app.route("/transaclocal", methods=['GET','POST'])
+@login_required
+def transaclocal():
+    form = Transferlocalform()
+    form.getchoicesfrom()
+    form.getchoicesto()
+    if form.validate_on_submit():
+        if form.tfrom.data == form.tto.data:
+            flash('Kan ikke overføre fra og til samme konto','danger') 
+            return redirect(url_for('transaclocal'))
         user_id = current_user.get_id()
         acc = Account.query.filter_by(accuser=user_id, accname=form.tfrom.data).first()
+        acc2 = Account.query.filter_by(accuser=user_id, accname=form.tto.data).first()
         newsum = acc.balance - float(form.tsum.data)
+        newsum2 = acc2.balance + float(form.tsum.data)
         acc.balance = newsum
+        acc2.balance = newsum2
         log = Log(loguser=user_id, logfrom = form.tfrom.data, logto=form.tto.data,logsum=form.tsum.data,logtime=dt.datetime.now())
         db.session.add(log)
         db.session.commit()
         return redirect(url_for('myaccs'))
-    return render_template('transaction.html', form=form)
+    return render_template('transaclocal.html', form=form)
 
+
+@app.before_request
+def before_request():
+    session.permanent = True
+    app.permanent_session_lifetime = dt.timedelta(minutes=10)
+    session.modified = True
 
 #Bruker redirectes etter for mange feil login forsøk
 @app.errorhandler(429)

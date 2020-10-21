@@ -1,0 +1,12 @@
+{%extends 'base.html'%}{% block body %}
+<h1>Kontaktinfo:</h1>
+<style>
+    h1 {text-align: center;}
+    p {text-align: center;}
+    div {text-align: center;}
+    </style>
+<p>Kontakt oss på mail: bank@banken.no</p>
+<div class="aligncenter">
+    <img src="{{url_for('static', filename='image/banken_logo.png')}}" alt="banken_logo.png" width="400" height="300"/>
+</div>
+{% endblock %}

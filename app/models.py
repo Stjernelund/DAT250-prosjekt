@@ -1,11 +1,11 @@
 from app import db, login_manager
 from flask_login import UserMixin
-########
 import os
 import base64
 import onetimepass
 # pip install onetimepass
 
+#############
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -21,7 +21,11 @@ class User(db.Model, UserMixin):
     usertlf = db.Column(db.Integer(), unique=True,  nullable=False)
     accounts = db.relationship('Account',  backref='holder', lazy=True)
     logs = db.relationship('Log', backref='logger', lazy=True)
+    confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    confirmed_on = db.Column(db.DateTime, nullable=True)
     otp_secret = db.Column(db.String(16))
+    confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    confirmed_on = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -29,7 +33,7 @@ class User(db.Model, UserMixin):
             self.otp_secret = base64.b32encode(os.urandom(10)).decode('utf-8') #Generate a random secret
         
     def get_totp_uri(self):
-        return 'otpauth://totp/2FA-Demo:{0}?secret={1}&issuer=2FA-Demo' \
+        return 'otpauth://totp/2FA-Banken:{0}?secret={1}&issuer=2FA-Banken' \
             .format(self.username, self.otp_secret)
 
     def verify_totp(self, token):
