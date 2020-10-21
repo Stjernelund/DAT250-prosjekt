@@ -1,11 +1,11 @@
 from app import db, login_manager
 from flask_login import UserMixin
-########
 import os
 import base64
 import onetimepass
 # pip install onetimepass
 
+#############
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -22,6 +22,8 @@ class User(db.Model, UserMixin):
     accounts = db.relationship('Account',  backref='holder', lazy=True)
     logs = db.relationship('Log', backref='logger', lazy=True)
     otp_secret = db.Column(db.String(16))
+    confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    confirmed_on = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)

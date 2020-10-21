@@ -10,7 +10,10 @@ import pyqrcode
 from app.logger import log, log_transaction
 from datetime import datetime
 from app.mail import send_mail
+from app.token import generate_confirmation_token, confirm_token
+from app.decorator import check_confirmed
 #pip install PyQRCode
+###############
 
 @app.route('/')
 def index():
@@ -28,12 +31,12 @@ def login():
         if user is None or not bcrypt.check_password_hash(user.userpwd, form.password.data) or \
                 not user.verify_totp(form.token.data):
             flash('Feil brukernavn, passord eller token, vennligst prøv på nytt', 'danger')
-            log(form.username.data, "Unsuccessful")
+            #log(form.username.data, "Unsuccessful")
             return redirect(url_for('login'))
         if user and bcrypt.check_password_hash(user.userpwd, form.password.data):
             login_user(user, remember=False)
             next_page = request.args.get('next')
-            log(form.username.data, "Successful")
+            #log(form.username.data, "Successful")
             return redirect(next_page) if next_page else redirect(url_for('mainpage'))
         else:
             flash("Feil brukernavn eller passord, vennligst prøv på nytt", 'danger')
@@ -51,7 +54,7 @@ def register():
             form.password.data).decode('utf-8')
         phonenr = pn.parse(form.tlf.data, "NO")
         user = User(username=form.username.data, useremail=form.email.data,
-                    userpwd=hashed_password, usertlf= pn.format_number(phonenr, pn.PhoneNumberFormat.NATIONAL), useraddr=form.addr.data)
+                    userpwd=hashed_password, usertlf= pn.format_number(phonenr, pn.PhoneNumberFormat.NATIONAL), useraddr=form.addr.data, confirmed=False)
         db.session.add(user)
         db.session.commit()
         createaccs(user.id)
@@ -161,19 +164,66 @@ def transaction():
     form = Transferform()
     form.getchoices()
     if form.validate_on_submit():
-        user_id = current_user.get_id()
-        acc = Account.query.filter_by(accuser=user_id, accname=form.tfrom.data).first()
-        newsum = acc.balance - float(form.tsum.data)
-        acc.balance = newsum
-        now = datetime.now()
-        time = now.strftime("%Y-%m-%d %H:%M:%S")
-        loggen = Log(loguser=user_id, logfrom = form.tfrom.data, logto=form.tto.data, logsum=form.tsum.data, logtime=time)
-        db.session.add(loggen)
-        db.session.commit()
-        #send_mail(email, f"Du har overført {penger}kr fra {konto} til {konto2}")
-        #log_transaction(user_id, form.tfrom.data, form.tto.data, form.tsum, now)
-        return redirect(url_for('myaccs'))
+        current_user.confirmed = False
+        token_mail()
+        session['user_id'] = current_user.get_id()
+        session['tfrom'] = form.tfrom.data
+        session['tto'] = form.tto.data
+        session['tsum'] = form.tsum.data 
+        #return redirect(url_for('overforing'))
     return render_template('transaction.html', form=form)
+
+@app.route("/overforing", methods=['GET','POST'])
+@login_required
+def overforing():
+    if 'user_id' in session:
+        tfrom = session['tfrom']
+        tto = session['tto']
+        tsum = session['tsum']
+        if request.method == 'GET':
+            if current_user.confirmed == True:
+                    user_id = session['user_id']
+                    acc = Account.query.filter_by(accuser=user_id, accname=tfrom).first()
+                    newsum = acc.balance - float(tsum)
+                    acc.balance = newsum
+                    log = Log(loguser=user_id, logfrom = tfrom, logto=tto,logsum=tsum,logtime=dt.datetime.now())
+                    current_user.confirmed = False
+                    db.session.add(log)
+                    db.session.commit()
+                    # for added security, remove username from session
+                    del session['user_id']
+                    del session['tfrom']
+                    del session['tto']
+                    del session['tsum']
+    return redirect(url_for('logs'))
+
+def token_mail():
+    mail = current_user.useremail
+    token = generate_confirmation_token(mail)
+    confirm_url = url_for('confirm_email', token=token, _external=True)
+    html = render_template('meldingen.html', confirm_url=confirm_url)
+    send_mail(mail, html) 
+    flash('En bekreftelseslink har blitt sendt via mail', 'success')
+    #return redirect(url_for("transaction"))
+
+@app.route('/confirm/<token>')
+@login_required
+def confirm_email(token):
+    try:
+        email = confirm_token(token)
+    except:
+        flash('The confirmation link is invalid or has expired.', 'danger')
+    user = User.query.filter_by(useremail=email).first_or_404()
+    if user.confirmed:
+        flash('Account already confirmed. Please login.', 'success')
+    else:
+        print("Rett før vi setter user.confirmed til true")
+        user.confirmed = True
+        user.confirmed_on = dt.datetime.now()
+        db.session.add(user)
+        db.session.commit()
+        flash('Du har bekreftet bankoverføingen!', 'success')
+    return redirect(url_for('overforing'))
 
 @app.before_request
 def before_request():
