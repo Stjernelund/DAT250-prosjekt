@@ -58,8 +58,6 @@ class LoginForm(FlaskForm):
     password = PasswordField('Passord', validators=[Required(), Length(min=8)])
     token = StringField('Token (2FA)', validators=[Required(), Length(6, 6)])
     recaptcha = RecaptchaField()
-    if getattr(settings, 'DEBUG', False):
-        recaptcha.clean = lambda x: x[0]
     submit = SubmitField('Logg inn')
 
     def validate_token(self, token):

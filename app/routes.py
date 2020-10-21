@@ -11,7 +11,6 @@ from app.logger import log, log_transaction
 from datetime import datetime
 from app.mail import send_mail
 from app.token import generate_confirmation_token, confirm_token
-from app.decorator import check_confirmed
 #pip install PyQRCode
 ###############
 
