@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
-from flask_wtf import Form, RecaptchaField
+from flask_wtf import FlaskForm,RecaptchaField
 from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import Required, Length, Email, EqualTo, ValidationError, Optional
 from app.models import User, Account, Log
@@ -57,6 +57,9 @@ class LoginForm(FlaskForm):
     username = StringField('Brukernavn', validators=[Required(), Length(min=5, max=20)])
     password = PasswordField('Passord', validators=[Required(), Length(min=8)])
     token = StringField('Token (2FA)', validators=[Required(), Length(6, 6)])
+    recaptcha = RecaptchaField()
+    if getattr(settings, 'DEBUG', False):
+        recaptcha.clean = lambda x: x[0]
     submit = SubmitField('Logg inn')
 
 class Editform(FlaskForm):
