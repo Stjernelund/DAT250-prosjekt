@@ -11,7 +11,6 @@ from app.logger import log, log_transaction
 from datetime import datetime
 from app.mail import send_mail
 from app.token import generate_confirmation_token, confirm_token
-from app.decorator import check_confirmed
 #pip install PyQRCode
 ###############
 
@@ -31,12 +30,12 @@ def login():
         if user is None or not bcrypt.check_password_hash(user.userpwd, form.password.data) or \
                 not user.verify_totp(form.token.data):
             flash('Feil brukernavn, passord eller token, vennligst prøv på nytt', 'danger')
-            #log(form.username.data, "Unsuccessful")
+            log(form.username.data, "Unsuccessful")
             return redirect(url_for('login'))
         if user and bcrypt.check_password_hash(user.userpwd, form.password.data):
             login_user(user, remember=False)
             next_page = request.args.get('next')
-            #log(form.username.data, "Successful")
+            log(form.username.data, "Successful")
             return redirect(next_page) if next_page else redirect(url_for('mainpage'))
         else:
             flash("Feil brukernavn eller passord, vennligst prøv på nytt", 'danger')
@@ -186,7 +185,9 @@ def overforing():
                     acc = Account.query.filter_by(accuser=user_id, accname=tfrom).first()
                     newsum = acc.balance - float(tsum)
                     acc.balance = newsum
-                    log = Log(loguser=user_id, logfrom = tfrom, logto=tto,logsum=tsum,logtime=dt.datetime.now())
+                    now = datetime.now()
+                    time = now.strftime("%Y-%M-%d %H:%M:%S")
+                    log = Log(loguser=user_id, logfrom = tfrom, logto=tto,logsum=tsum,logtime=time)
                     current_user.confirmed = False
                     db.session.add(log)
                     db.session.commit()
