@@ -1,0 +1,4 @@
+2020-10-21 14:12:10 - SindreV - Unsuccessful
+2020-10-21 14:16:55 - SindreV - Unsuccessful
+2020-10-21 14:27:22 - SindreV - Unsuccessful
+2020-10-21 14:27:37 - SindreV - Successful

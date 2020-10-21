@@ -71,9 +71,4 @@ def send_mail_fil(receivers_email="dat250python@gmail.com", melding="Test", subj
         server.login(sender_email, password)
         server.sendmail(sender_email, receivers_email, text)
         print("mail sendt")
-    #except Exception as e:
-    #    print(e)
-    #return
 
-if __name__ == "__main__":
-    send_mail_fil()

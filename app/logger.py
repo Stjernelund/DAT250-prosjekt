@@ -47,7 +47,7 @@ def log_transaction(user, from_acc, to_acc, value, now=datetime.now()):
     past = datetime.today() - timedelta(days=1)
     if not file.exists():
         try:
-            send_mail_fil("dat250python@gmail.com", "Log:", "Daglig log", f"./log-login/{past.year}-{past.month}-{past.day}.txt")
+            send_mail_fil("dat250python@gmail.com", "Log:", "Daglig log", f"./log-transaction/{past.year}-{past.month}-{past.day}.txt")
         except:
             pass
     with open(f"./log-transaction/{date}.txt", "a") as file:
