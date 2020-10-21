@@ -113,3 +113,34 @@ class Transferform(FlaskForm):
         user_id = current_user.get_id()
         user = User.query.filter_by(id=user_id).first()
         self.tfrom.choices = [(acc.accname,acc.accname) for acc in user.accounts]
+
+
+class Transferlocalform(FlaskForm):
+    tfrom = SelectField('Velg Konto: ')
+    tto = SelectField('Velg Konto: ')
+    tsum = StringField('Sum', validators=[Required()])
+    submit = SubmitField('Bekreft overføring')
+
+    def validate_tsum(self,tsum):
+        user_id = current_user.get_id()
+        acc = Account.query.filter_by(accuser=user_id,accname=self.tfrom.data).first()
+        try:
+            float(tsum.data)
+        except ValueError:
+            raise ValidationError('Ikke en gyldig sum')
+        if acc.balance<float(tsum.data):
+            raise ValidationError('Du har ikke nokk penger til å overføre denne mengden')
+        if float(tsum.data)<0:
+            raise ValidationError('Ikke en gyldig sum')
+    
+    def getchoicesfrom(self):
+        user_id = current_user.get_id()
+        user = User.query.filter_by(id=user_id).first()
+        self.tfrom.choices = [(acc.accname,acc.accname) for acc in user.accounts]
+    
+    def getchoicesto(self):
+        user_id = current_user.get_id()
+        user = User.query.filter_by(id=user_id).first()
+        self.tto.choices = [(acc.accname,acc.accname) for acc in user.accounts]
+
+   

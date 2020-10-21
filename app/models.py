@@ -21,6 +21,8 @@ class User(db.Model, UserMixin):
     usertlf = db.Column(db.Integer(), unique=True,  nullable=False)
     accounts = db.relationship('Account',  backref='holder', lazy=True)
     logs = db.relationship('Log', backref='logger', lazy=True)
+    confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    confirmed_on = db.Column(db.DateTime, nullable=True)
     otp_secret = db.Column(db.String(16))
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
     confirmed_on = db.Column(db.DateTime, nullable=True)

@@ -9,7 +9,7 @@
             <span> {{ error }}</span> {% endfor %}
         </div>
         {% else %} {{form.tfrom(class="form-control", autocomplete="off")}} {% endif %}
-    <small> <a href="{{url_for('transaclocal')}}">Overfør mellom kontoer</a></small>
+    <small> <a href="{{url_for('transaction')}}">Overfør til en annens konto</a></small>
     </div>
     <div class="form-group">
         {{form.tto.label}} {% if form.tto.errors %} {{form.tto(class="form-control is-invalid")}}

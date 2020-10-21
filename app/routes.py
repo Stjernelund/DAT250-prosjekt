@@ -1,7 +1,7 @@
 from flask import render_template, url_for, redirect, request, flash, session, abort
 from app import app, db, bcrypt, limiter
 from app.models import User, Account, Log, createaccs
-from app.forms import RegistrationForm, LoginForm, Editform, Transferform
+from app.forms import RegistrationForm, LoginForm, Editform, Transferform, Transferlocalform
 from flask_login import login_user, current_user, logout_user, login_required, login_manager
 import phonenumbers as pn
 import datetime as dt
@@ -224,6 +224,30 @@ def confirm_email(token):
         db.session.commit()
         flash('Du har bekreftet bankoverføingen!', 'success')
     return redirect(url_for('overforing'))
+
+@app.route("/transaclocal", methods=['GET','POST'])
+@login_required
+def transaclocal():
+    form = Transferlocalform()
+    form.getchoicesfrom()
+    form.getchoicesto()
+    if form.validate_on_submit():
+        if form.tfrom.data == form.tto.data:
+            flash('Kan ikke overføre fra og til samme konto','danger') 
+            return redirect(url_for('transaclocal'))
+        user_id = current_user.get_id()
+        acc = Account.query.filter_by(accuser=user_id, accname=form.tfrom.data).first()
+        acc2 = Account.query.filter_by(accuser=user_id, accname=form.tto.data).first()
+        newsum = acc.balance - float(form.tsum.data)
+        newsum2 = acc2.balance + float(form.tsum.data)
+        acc.balance = newsum
+        acc2.balance = newsum2
+        log = Log(loguser=user_id, logfrom = form.tfrom.data, logto=form.tto.data,logsum=form.tsum.data,logtime=dt.datetime.now())
+        db.session.add(log)
+        db.session.commit()
+        return redirect(url_for('myaccs'))
+    return render_template('transaclocal.html', form=form)
+
 
 @app.before_request
 def before_request():
