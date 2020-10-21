@@ -189,6 +189,7 @@ def overforing():
                     time = now.strftime("%Y-%M-%d %H:%M:%S")
                     log = Log(loguser=user_id, logfrom = tfrom, logto=tto,logsum=tsum,logtime=time)
                     current_user.confirmed = False
+                    log_transaction(session['user'], session['tfrom'], session['tto'], session['tsum'])
                     db.session.add(log)
                     db.session.commit()
                     # for added security, remove username from session
@@ -247,7 +248,6 @@ def transaclocal():
         log = Log(loguser=user_id, logfrom = form.tfrom.data, logto=form.tto.data,logsum=form.tsum.data,logtime=dt.datetime.now())
         db.session.add(log)
         db.session.commit()
-        log_transaction(session['user'], session['tfrom'], session['tto'], session['tsum'])
         return redirect(url_for('myaccs'))
     return render_template('transaclocal.html', form=form)
 
