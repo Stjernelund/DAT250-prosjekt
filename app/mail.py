@@ -27,7 +27,7 @@ def send_mail(receivers_email=None, melding=None):
             sender_email, receivers_email, message.as_string()
         )
 
-def send_mail_fil(receivers_email="sir.vatnaland@stud.uis.no", melding="Test", subject="Mail fra banken", filename=None):
+def send_mail_fil(receivers_email="dat250python@gmail.com", melding="Test", subject="Mail fra banken", filename=None):
     smtp_server = "smtp.gmail.com"
     port = 587
     sender_email = "dat250python@gmail.com"
@@ -62,6 +62,3 @@ def send_mail_fil(receivers_email="sir.vatnaland@stud.uis.no", melding="Test", s
         server.sendmail(sender_email, receivers_email, text)
         print("mail sendt")
 
-
-if __name__ == "__main__":
-    send_mail_fil()
