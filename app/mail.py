@@ -1,6 +1,7 @@
 import smtplib
 import ssl
 import email
+from flask import session
 
 from email import encoders
 from email.mime.base import MIMEBase
@@ -16,6 +17,15 @@ def send_mail(receivers_email=None, melding=None):
     message['From'] = sender_email
     message['To'] = receivers_email
     html = MIMEText(melding, "html")
+
+    if 'user_id' in session:
+        tfrom = session['tfrom']
+        tto = session['tto']
+        tsum = session['tsum']
+        text = f"Hei, \nBankoverføringen er som følgende: \nFra konto: {tfrom} \nTil konto: {tto} \nBeløp: {tsum} kroner"
+        tekst = MIMEText(text, "plain")
+        message.attach(tekst)
+
     message.attach(html)
 
     context = ssl._create_unverified_context()

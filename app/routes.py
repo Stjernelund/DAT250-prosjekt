@@ -11,9 +11,6 @@ from app.logger import log, log_transaction
 from datetime import datetime
 from app.mail import send_mail
 from app.token import generate_confirmation_token, confirm_token
-from app.decorator import check_confirmed
-#pip install PyQRCode
-###############
 
 @app.route('/')
 def index():
@@ -165,11 +162,12 @@ def transaction():
     form.getchoices()
     if form.validate_on_submit():
         current_user.confirmed = False
-        token_mail()
         session['user_id'] = current_user.get_id()
+        session['user'] = current_user.username
         session['tfrom'] = form.tfrom.data
         session['tto'] = form.tto.data
         session['tsum'] = form.tsum.data 
+        token_mail()
         #return redirect(url_for('overforing'))
     return render_template('transaction.html', form=form)
 
@@ -195,6 +193,7 @@ def overforing():
                     del session['tfrom']
                     del session['tto']
                     del session['tsum']
+                    del session['user']
     return redirect(url_for('logs'))
 
 def token_mail():
@@ -245,6 +244,7 @@ def transaclocal():
         log = Log(loguser=user_id, logfrom = form.tfrom.data, logto=form.tto.data,logsum=form.tsum.data,logtime=dt.datetime.now())
         db.session.add(log)
         db.session.commit()
+        log_transaction(session['user'], session['tfrom'], session['tto'], session['tsum'])
         return redirect(url_for('myaccs'))
     return render_template('transaclocal.html', form=form)
 

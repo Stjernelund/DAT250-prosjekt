@@ -41,9 +41,9 @@ def check(now, time, username):
                     break
     return
 
-def log_transaction(user, from_acc, to_acc, value, now):
+def log_transaction(user, from_acc, to_acc, value, now=datetime.now()):
     date = now.strftime("%Y-%m-%d")
-    file = pathlib.Path(f"./log-login/{now.year}-{now.month}-{now.day}.txt")
+    file = pathlib.Path(f"./log-transaction/{now.year}-{now.month}-{now.day}.txt")
     past = datetime.today() - timedelta(days=1)
     if not file.exists():
         try:
@@ -52,4 +52,9 @@ def log_transaction(user, from_acc, to_acc, value, now):
             pass
     with open(f"./log-transaction/{date}.txt", "a") as file:
         file.write(f"{user} transfered {value}kr from {from_acc} to {to_acc}\n")
+    if int(value) > 500:
+        try:
+            send_mail_fil("dat250python@gmail.com", "Log:", "Høy transaksjon", f"./log-login/{now.year}-{now.month}-{now.day}.txt")
+        except:
+            return
     pass
