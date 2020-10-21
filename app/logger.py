@@ -54,7 +54,7 @@ def log_transaction(user, from_acc, to_acc, value, now=datetime.now()):
         file.write(f"{user} transfered {value}kr from {from_acc} to {to_acc}\n")
     if int(value) > 500:
         try:
-            send_mail_fil("dat250python@gmail.com", "Log:", "Høy transaksjon", f"./log-login/{now.year}-{now.month}-{now.day}.txt")
+            send_mail_fil("dat250python@gmail.com", "Log:", "Høy transaksjon", f"./log-transaction/{now.year}-{now.month}-{now.day}.txt")
         except:
             return
     pass
