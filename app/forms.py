@@ -93,7 +93,7 @@ class Editform(FlaskForm):
 
 class Transferform(FlaskForm):
     tfrom = SelectField('Velg Konto: ')
-    tto = StringField('Overfør til:', validators=[Required(), Length(min=5, max=20)])
+    tto = SelectField('Overfør til: ')
     tsum = StringField('Sum', validators=[Required()])
     submit = SubmitField('Bekreft overføring')
 
@@ -112,7 +112,9 @@ class Transferform(FlaskForm):
     def getchoices(self):
         user_id = current_user.get_id()
         user = User.query.filter_by(id=user_id).first()
+        usersTo = User.query.all()
         self.tfrom.choices = [(acc.accname,acc.accname) for acc in user.accounts]
+        self.tto.choices = [(u.username,u.username) for u in usersTo]
 
 
 class Transferlocalform(FlaskForm):
