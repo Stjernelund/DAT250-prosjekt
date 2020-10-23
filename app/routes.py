@@ -31,14 +31,17 @@ def login():
             flash('Feil brukernavn, passord eller token, vennligst prøv på nytt', 'danger')
             log(form.username.data, "Unsuccessful")
             return redirect(url_for('login'))
-        if user and bcrypt.check_password_hash(user.userpwd, form.password.data):
+        if user and bcrypt.check_password_hash(user.userpwd, form.password.data) and user.verify_totp(form.token.data):
             login_user(user, remember=False)
             next_page = request.args.get('next')
             log(form.username.data, "Successful")
             return redirect(next_page) if next_page else redirect(url_for('mainpage'))
         else:
             flash("Feil brukernavn eller passord, vennligst prøv på nytt", 'danger')
-    return render_template("login.html", form=form)
+    return render_template("login.html", form=form), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -57,12 +60,13 @@ def register():
         db.session.commit()
         createaccs(user.id)
         db.session.commit()
-        # redirect to the two-factor auth page, passing username in session
-        session['username'] = user.username #!!
+        session['username'] = user.username
         return redirect(url_for('two_factor_setup'))
         #flash(f'Brukeren din har blitt registert, du kan nå logge inn!', 'success')
-        #return redirect(url_for('login'))
-    return render_template('register.html', form=form)
+    return render_template('register.html', form=form), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route('/twofactor')
 def two_factor_setup():
@@ -120,7 +124,10 @@ def editprofile():
         db.session.commit()
         flash(f'Dine personlige opplysninger har blitt oppdatert', 'success')
         return redirect(url_for('account'))
-    return render_template("editprofile.html", form=form)
+    return render_template("editprofile.html", form=form), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/logout")
 def logout():
@@ -131,79 +138,66 @@ def logout():
 @app.route("/account")
 @login_required
 def account():
-    return render_template('account.html')
+    return render_template('account.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/myaccs")
 @login_required
 def myaccs():
-    return render_template('myaccs.html')
+    return render_template('myaccs.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
     
 @app.route("/logs")
 @login_required
 def logs():
-    return render_template('logs.html')
+    return render_template('logs.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/mainpage")
 @login_required
 def mainpage():
-    return render_template('mainpage.html')
+    return render_template('mainpage.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/kontakt")
 def kontakt():
-    return render_template('kontakt.html')
+    return render_template('kontakt.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/om")
 def om():
-    return render_template('om.html')
+    return render_template('om.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/transaction", methods=['GET','POST'])
 @login_required
 def transaction():
     form = Transferform()
     form.getchoices()
-    session['user_id'] = current_user.get_id()
-    session['user'] = current_user.username
-    session['tfrom'] = form.tfrom.data
-    session['tto'] = form.tto.data
-    session['tsum'] = form.tsum.data 
-    if 'user_id' in session:
-        tfrom = form.tfrom.data
-        tto = form.tto.data
-        tsum = form.tsum.data 
     if form.validate_on_submit():
         #current_user.confirmed == True:
-        user_id = session['user_id']
-        user_id_from = user_id
-        user_to = User.query.filter_by(username=tto).first()
-        user_id_to = user_to.id
-        accFrom = Account.query.filter_by(accuser=user_id_from, accname=tfrom).first()
-        #Prøver å finne account to
-        user = User.query.filter_by(id=user_id_to).first()
-        user_to_accounts = []
-        for acc in user.accounts:
-            user_to_accounts.append(acc.accname)
-        ac_brukerkonto = user_to_accounts[0]
-        accTo = Account.query.filter_by(accuser=user_id_to, accname=ac_brukerkonto).first()
-        #
-        newsumFrom = accFrom.balance - float(tsum)
-        newsumTo = accTo.balance + float(tsum)
-        accFrom.balance = newsumFrom
-        accTo.balance = newsumTo
-        now = datetime.now()
-        time = now.strftime("%Y-%M-%d %H:%M:%S")
-        log = Log(loguser=user_id, logfrom = tfrom, logto=tto,logsum=tsum,logtime=time)
-        current_user.confirmed = False
         #log_transaction(session['user'], session['tfrom'], session['tto'], session['tsum'])
-        db.session.add(log)
-        db.session.commit()
+        #db.session.add(log)
+        #db.session.commit()
+        session['user_id'] = current_user.get_id()
+        session['user'] = current_user.username
+        session['tfrom'] = form.tfrom.data
+        session['tto'] = form.tto.data
+        session['tsum'] = form.tsum.data 
+        current_user.confirmed = False
         token_mail()
-        # for added security, remove username from session
-        del session['user_id']
-        del session['tfrom']
-        del session['tto']
-        del session['tsum']
-        del session['user']
-        #return redirect(url_for('overforing'))
     return render_template('transaction.html', form=form)
     
 
@@ -216,23 +210,36 @@ def overforing():
         tsum = session['tsum']
         if request.method == 'GET':
             if current_user.confirmed == True:
-                    user_id = session['user_id']
-                    acc = Account.query.filter_by(accuser=user_id, accname=tfrom).first()
-                    newsum = acc.balance - float(tsum)
-                    acc.balance = newsum
-                    now = datetime.now()
-                    time = now.strftime("%Y-%M-%d %H:%M:%S")
-                    log = Log(loguser=user_id, logfrom = tfrom, logto=tto,logsum=tsum,logtime=time)
-                    current_user.confirmed = False
-                    log_transaction(session['user'], session['tfrom'], session['tto'], session['tsum'])
-                    db.session.add(log)
-                    db.session.commit()
-                    # for added security, remove username from session
-                    del session['user_id']
-                    del session['tfrom']
-                    del session['tto']
-                    del session['tsum']
-                    del session['user']
+                user_id = session['user_id']
+                user_id_from = user_id
+                user_to = User.query.filter_by(username=tto).first()
+                user_id_to = user_to.id
+                accFrom = Account.query.filter_by(accuser=user_id_from, accname=tfrom).first()
+                #Prøver å finne account to
+                user = User.query.filter_by(id=user_id_to).first()
+                user_to_accounts = []
+                for acc in user.accounts:
+                    user_to_accounts.append(acc.accname)
+                ac_brukerkonto = user_to_accounts[0]
+                accTo = Account.query.filter_by(accuser=user_id_to, accname=ac_brukerkonto).first()
+                #
+                newsumFrom = accFrom.balance - float(tsum)
+                newsumTo = accTo.balance + float(tsum)
+                accFrom.balance = newsumFrom
+                accTo.balance = newsumTo
+                now = datetime.now()
+                time = now.strftime("%Y-%M-%d %H:%M:%S")
+                log = Log(loguser=user_id, logfrom = tfrom, logto=tto,logsum=tsum,logtime=time)
+                current_user.confirmed = False
+                log_transaction(session['user'], session['tfrom'], session['tto'], session['tsum'])
+                db.session.add(log)
+                db.session.commit()
+                # for added security, remove username from session
+                del session['user_id']
+                del session['tfrom']
+                del session['tto']
+                del session['tsum']
+                del session['user']
     return redirect(url_for('logs'))
 
 def token_mail():
@@ -253,9 +260,8 @@ def confirm_email(token):
         flash('The confirmation link is invalid or has expired.', 'danger')
     user = User.query.filter_by(useremail=email).first_or_404()
     if user.confirmed:
-        flash('Account already confirmed. Please login.', 'success')
+        flash('Overføringen er allerede bekreftet.', 'success')
     else:
-        print("Rett før vi setter user.confirmed til true")
         user.confirmed = True
         user.confirmed_on = dt.datetime.now()
         db.session.add(user)
@@ -284,7 +290,10 @@ def transaclocal():
         db.session.add(log)
         db.session.commit()
         return redirect(url_for('myaccs'))
-    return render_template('transaclocal.html', form=form)
+    return render_template('transaclocal.html', form=form), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 
 @app.before_request

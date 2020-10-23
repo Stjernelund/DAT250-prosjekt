@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+2020-10-23 09:01:45 - DanielK - Unsuccessful
+=======
 2020-10-23 11:21:20 - Stjernelund - Successful
 2020-10-23 11:38:11 - Stjernelund - Successful
 2020-10-23 12:39:12 - Stjernelund - Successful
@@ -16,3 +19,7 @@
 2020-10-23 13:50:58 - AudunLien - Successful
 2020-10-23 14:11:16 - SindreV - Successful
 2020-10-23 14:23:43 - AudunLien - Successful
+>>>>>>> f841c424ab2e6df050d80dbc5b37014c211d6b0b
+2020-10-23 21:40:36 - SivSiv - Successful
+2020-10-23 21:44:51 - OlleBolle - Successful
+2020-10-23 22:07:14 - SivSiv - Successful

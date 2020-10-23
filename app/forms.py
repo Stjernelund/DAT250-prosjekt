@@ -10,7 +10,7 @@ import re
 class RegistrationForm(FlaskForm):
     username = StringField('Brukernavn', validators=[Required(), Length(min=5, max=20)])
     email = StringField('Email', validators= [Required(), Email()])
-    password = PasswordField('Passord', validators=[Required(), Length(min=12)])
+    password = PasswordField('Passord', validators=[Required(), Length(min=12, max=64)])
     confirm_password = PasswordField('Bekreft Passord', validators=[Required(), EqualTo('password')])
     tlf = StringField('Telefonnummer', validators=[Required()])
     addr = StringField('Addresse', validators=[Required(), Length(min=5)])

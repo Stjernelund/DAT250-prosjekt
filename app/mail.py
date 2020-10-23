@@ -19,10 +19,11 @@ def send_mail(receivers_email=None, melding=None):
     html = MIMEText(melding, "html")
 
     if 'user_id' in session:
+        name = session['user']
         tfrom = session['tfrom']
         tto = session['tto']
         tsum = session['tsum']
-        text = f"Hei, \nBankoverføringen er som følgende: \nFra konto: {tfrom} \nTil konto: {tto} \nBeløp: {tsum} kroner"
+        text = f"Hei {name}, \nBankoverføringen er som følgende: \nFra konto: {tfrom} \nTil konto: {tto} \nBeløp: {tsum} kroner"
         tekst = MIMEText(text, "plain")
         message.attach(tekst)
 
@@ -46,7 +47,7 @@ def send_mail_fil(receivers_email="dat250python@gmail.com", melding="Test", subj
     message = MIMEMultipart()
     message["From"] = sender_email
     message["To"] = receivers_email
-    message["Subject"] = "Mail fra banken"
+    message["Subject"] = subject
     message["Bcc"] = receivers_email
 
     message.attach(MIMEText(melding, "plain"))
