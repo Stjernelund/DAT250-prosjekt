@@ -31,14 +31,17 @@ def login():
             flash('Feil brukernavn, passord eller token, vennligst prøv på nytt', 'danger')
             log(form.username.data, "Unsuccessful")
             return redirect(url_for('login'))
-        if user and bcrypt.check_password_hash(user.userpwd, form.password.data):
+        if user and bcrypt.check_password_hash(user.userpwd, form.password.data) and user.verify_totp(form.token.data):
             login_user(user, remember=False)
             next_page = request.args.get('next')
             log(form.username.data, "Successful")
             return redirect(next_page) if next_page else redirect(url_for('mainpage'))
         else:
             flash("Feil brukernavn eller passord, vennligst prøv på nytt", 'danger')
-    return render_template("login.html", form=form)
+    return render_template("login.html", form=form), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -57,12 +60,13 @@ def register():
         db.session.commit()
         createaccs(user.id)
         db.session.commit()
-        # redirect to the two-factor auth page, passing username in session
-        session['username'] = user.username #!!
+        session['username'] = user.username
         return redirect(url_for('two_factor_setup'))
         #flash(f'Brukeren din har blitt registert, du kan nå logge inn!', 'success')
-        #return redirect(url_for('login'))
-    return render_template('register.html', form=form)
+    return render_template('register.html', form=form), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route('/twofactor')
 def two_factor_setup():
@@ -120,7 +124,10 @@ def editprofile():
         db.session.commit()
         flash(f'Dine personlige opplysninger har blitt oppdatert', 'success')
         return redirect(url_for('account'))
-    return render_template("editprofile.html", form=form)
+    return render_template("editprofile.html", form=form), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/logout")
 def logout():
@@ -131,30 +138,48 @@ def logout():
 @app.route("/account")
 @login_required
 def account():
-    return render_template('account.html')
+    return render_template('account.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/myaccs")
 @login_required
 def myaccs():
-    return render_template('myaccs.html')
+    return render_template('myaccs.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
     
 @app.route("/logs")
 @login_required
 def logs():
-    return render_template('logs.html')
+    return render_template('logs.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/mainpage")
 @login_required
 def mainpage():
-    return render_template('mainpage.html')
+    return render_template('mainpage.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/kontakt")
 def kontakt():
-    return render_template('kontakt.html')
+    return render_template('kontakt.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/om")
 def om():
-    return render_template('om.html')
+    return render_template('om.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/transaction", methods=['GET','POST'])
 @login_required
@@ -169,8 +194,10 @@ def transaction():
         session['tto'] = form.tto.data
         session['tsum'] = form.tsum.data 
         token_mail()
-        #return redirect(url_for('overforing'))
-    return render_template('transaction.html', form=form)
+    return render_template('transaction.html', form=form), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route("/overforing", methods=['GET','POST'])
 @login_required
@@ -218,9 +245,8 @@ def confirm_email(token):
         flash('The confirmation link is invalid or has expired.', 'danger')
     user = User.query.filter_by(useremail=email).first_or_404()
     if user.confirmed:
-        flash('Account already confirmed. Please login.', 'success')
+        flash('Overføringen er allerede bekreftet.', 'success')
     else:
-        print("Rett før vi setter user.confirmed til true")
         user.confirmed = True
         user.confirmed_on = dt.datetime.now()
         db.session.add(user)
@@ -249,7 +275,10 @@ def transaclocal():
         db.session.add(log)
         db.session.commit()
         return redirect(url_for('myaccs'))
-    return render_template('transaclocal.html', form=form)
+    return render_template('transaclocal.html', form=form), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 
 @app.before_request
