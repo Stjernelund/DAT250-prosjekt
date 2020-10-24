@@ -93,7 +93,7 @@ class Editform(FlaskForm):
 
 class Transferform(FlaskForm):
     tfrom = SelectField('Velg Konto: ')
-    tto = SelectField('Overfør til: ')
+    tto = SelectField('Overfør til: ', validators=[Required()])
     tsum = StringField('Sum', validators=[Required()])
     submit = SubmitField('Bekreft overføring')
 
@@ -108,7 +108,7 @@ class Transferform(FlaskForm):
             raise ValidationError('Du har ikke nokk penger til å overføre denne mengden')
         if float(tsum.data)<0:
             raise ValidationError('Ikke en gyldig sum')
-    
+
     def getchoices(self):
         user_id = current_user.get_id()
         user = User.query.filter_by(id=user_id).first()

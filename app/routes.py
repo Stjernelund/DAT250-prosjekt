@@ -186,7 +186,14 @@ def om():
 def transaction():
     form = Transferform()
     form.getchoices()
+    user_id = session['user_id']
+    tto = session['tto']
+    user_to = User.query.filter_by(username=tto).first()
+    user_id_to = user_to.id
     if form.validate_on_submit():
+        if int(user_id) == int(user_id_to):
+            flash('Kan ikke overføre fra og til samme konto','danger') 
+            return redirect(url_for('transaction'))
         #current_user.confirmed == True:
         #log_transaction(session['user'], session['tfrom'], session['tto'], session['tsum'])
         #db.session.add(log)
