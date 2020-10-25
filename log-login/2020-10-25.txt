@@ -1,0 +1,7 @@
+2020-10-25 13:12:24 - AudunStjernelund - Successful
+2020-10-25 13:26:36 - Audun Lien - Unsuccessful
+2020-10-25 13:26:55 - AudunStjernelund - Unsuccessful
+2020-10-25 13:27:41 - AudunStjernelund - Unsuccessful
+2020-10-25 13:28:04 - AudunStjernelund - Successful
+2020-10-25 13:41:01 - AudunStjernelund - Unsuccessful
+2020-10-25 13:41:20 - AudunStjernelund - Successful

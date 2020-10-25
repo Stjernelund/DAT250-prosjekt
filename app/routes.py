@@ -186,11 +186,11 @@ def om():
 def transaction():
     form = Transferform()
     form.getchoices()
-    user_id = session['user_id']
-    tto = session['tto']
-    user_to = User.query.filter_by(username=tto).first()
-    user_id_to = user_to.id
+    user_id = current_user.get_id()
     if form.validate_on_submit():
+        tto = form.tto.data
+        user_to = User.query.filter_by(username=tto).first()
+        user_id_to = user_to.id
         if int(user_id) == int(user_id_to):
             flash('Kan ikke overføre fra og til samme konto','danger') 
             return redirect(url_for('transaction'))
